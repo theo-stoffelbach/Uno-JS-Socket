@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO chat</title>
+
+    <link rel="stylesheet" href="./front/style.css">
+</head>
+<body>
+
+<form id="form" action=""></form>
+<input type="submit" value="Start" id="Start">
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+<script>
+    var socket = io();
+
+    var messages = document.getElementById('messages');
+    var form = document.getElementById('form');
+    var input = document.getElementById('input');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+            socket.emit('chat message', input.value);
+            input.value = '';
+        }
+    });
+
+    socket.on('getId', (message) => {
+        console.log("Id du joueur : " + message); // Affiche : "Bienvenue sur le serveur!"
+    });
+
+    socket.on('chat message', function(msg) {
+        var item = document.createElement('li');
+        item.textContent = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+</script>
+
+
+</html>

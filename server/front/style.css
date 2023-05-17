@@ -1,0 +1,10 @@
+body {
+    background-color: black;
+}
+
+#Start {
+    width: 200px;
+    height: 25px;
+
+    background-color: red;
+}
