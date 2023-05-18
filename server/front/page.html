@@ -5,11 +5,29 @@
 
     <link rel="stylesheet" href="./front/style.css">
 </head>
+
+
+<style >
+
+    #Start {
+        width: 200px;
+        height: 25px;
+
+        /*background-color: red;*/
+    }
+</style>
+
+
+
 <body>
 
-<form id="form" action=""></form>
+<form id="form" action="">
 <input type="submit" value="Start" id="Start">
+</form>
+
 </body>
+
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
@@ -18,18 +36,22 @@
 
     var messages = document.getElementById('messages');
     var form = document.getElementById('form');
-    var input = document.getElementById('input');
+    var input = document.getElementById('Start');
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (input.value) {
-            socket.emit('chat message', input.value);
-            input.value = '';
+            socket.emit('start game', "start");
+            console.log("Youpi")
         }
     });
 
     socket.on('getId', (message) => {
         console.log("Id du joueur : " + message); // Affiche : "Bienvenue sur le serveur!"
+    });
+
+    socket.on('start game', () => {
+        input.value = "already start"
     });
 
     socket.on('chat message', function(msg) {

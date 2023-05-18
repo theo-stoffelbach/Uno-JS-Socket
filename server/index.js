@@ -4,12 +4,14 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const getCards = require('./testcard.js');
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/front/page.html');
 })
 
-let startGame = false;
+let buttonState = "lobby";
 let i = 0;
 
 io.on('connection', (socket) => {
@@ -20,10 +22,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('start game', () => {
-        if (!startGame) {
-            startGame = true;
-            console.log("Go joué   ")
+        if (buttonState === "lobby") {
+            buttonState = "start";
+        } else {
+            buttonState = "Start";
         }
+        socket.emit('start game');
+        socket.emit('card', getCards(socket.id) );
+        console.log("Go joué");
+
     });
 
 
