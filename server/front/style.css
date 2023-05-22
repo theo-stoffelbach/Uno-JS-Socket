@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+div#menu {
+    width: 100vw;
+    height: 100vh;
+    background: purple;
+    position: absolute;
+    z-index: 1;
+}
+
+div#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: aqua;
+}
+
+#container-cards {
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+#cards {
+    background: grey;
+    width: 80vw;
+    height: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 8vw;
+    height: 8vh;
+}
+
+.numberCard {
+    color: black;
+}
+
+#Start {
+    width: 200px;
+    height: 25px;
+
+    /*background-color: red;*/
+}

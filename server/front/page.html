@@ -3,64 +3,36 @@
 <head>
     <title>Socket.IO chat</title>
 
-    <link rel="stylesheet" href="./front/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-
-
-<style >
-
-    #Start {
-        width: 200px;
-        height: 25px;
-
-        /*background-color: red;*/
-    }
-</style>
-
-
 
 <body>
 
-<form id="form" action="">
-<input type="submit" value="Start" id="Start">
-</form>
+<div id="menu">
+    <form id="form" action="">
+        <input type="submit" value="Start" id="Start">
+    </form>
 
+</div>
+
+<div id="container">
+    <p id="state"> Not Your Turn</p>
+    <button id="draw"> Draw </button>
+    <div><h2>Not number yet</h2></div>
+
+</div>
+<div id="container-cards">
+    <div id="cards">
+        ffdsf
+        <button type="button" onclick="alert('Hello world!')">Click Me!</button>
+
+    </div>
+
+</div>
 </body>
-
 
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
-<script>
-    var socket = io();
-
-    var messages = document.getElementById('messages');
-    var form = document.getElementById('form');
-    var input = document.getElementById('Start');
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (input.value) {
-            socket.emit('start game', "start");
-            console.log("Youpi")
-        }
-    });
-
-    socket.on('getId', (message) => {
-        console.log("Id du joueur : " + message); // Affiche : "Bienvenue sur le serveur!"
-    });
-
-    socket.on('start game', () => {
-        input.value = "already start"
-    });
-
-    socket.on('chat message', function(msg) {
-        var item = document.createElement('li');
-        item.textContent = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-    });
-</script>
-
 
 </html>
