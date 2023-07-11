@@ -1,4 +1,5 @@
 var socket = io();
+var cardsOfPlayer = [];
 
 var messages = document.getElementById('messages');
 var form = document.getElementById('form');
@@ -16,8 +17,10 @@ form.addEventListener('submit', function(e) {
     }
 });
 
-socket.on('getId', (message) => {
-    console.log("Id du joueur : " + message); // Affiche : "Bienvenue sur le serveur!"
+socket.on('disconnect', () => {
+    console.log('Déconnecté du serveur');
+    // socket.emit("disconnectRemoveCard", cardsOfPlayer)
+
 });
 
 socket.on('start game', () => {
@@ -25,7 +28,14 @@ socket.on('start game', () => {
     socket.emit('getInitCard');
 });
 
+socket.on('start game', () => {
+    socket.emit('startGame');
+});
+
+
 socket.on("getInitCard", (cards) => {
+    startMenu.remove();
+
     cards.cards.forEach(card => {
         let cardHTML = document.createElement("button");
         cardHTML.className = "card";
@@ -37,9 +47,9 @@ socket.on("getInitCard", (cards) => {
 
         cardHTML.appendChild(numberCard);
         cardArea.appendChild(cardHTML);
-
+        cardsOfPlayer.push({cards: card,color: "none"})
     })
-    // console.log(cards)
+    console.log(cardsOfPlayer)
 })
 
 socket.on('chat message', function(msg) {
