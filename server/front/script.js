@@ -12,7 +12,7 @@ var cardArea = document.getElementById('cards');
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value) {
-        socket.emit('start game', "start");
+        socket.emit('startGame', "start");
         console.log("Youpi")
     }
 });
@@ -20,42 +20,36 @@ form.addEventListener('submit', function(e) {
 socket.on('disconnect', () => {
     console.log('Déconnecté du serveur');
     // socket.emit("disconnectRemoveCard", cardsOfPlayer)
-
 });
 
-socket.on('start game', () => {
-    startMenu.remove();
-    socket.emit('getInitCard');
-});
+socket.on("startGame", () => {
+    startMenu.remove()
+})
 
-socket.on('start game', () => {
-    socket.emit('startGame');
-});
+socket.on("getDrewCard", (cards) => {
+    regenerateCard(cards)
+})
 
+function regenerateCard(cards) {
 
-socket.on("getInitCard", (cards) => {
-    startMenu.remove();
+    while (cardArea.firstChild) {
+        cardArea.removeChild(cardArea.firstChild);
+        console.log("bug")
+    }
 
-    cards.cards.forEach(card => {
-        let cardHTML = document.createElement("button");
+    cards.forEach(card => {
+        cardHTML = document.createElement("button");
         cardHTML.className = "card";
         cardHTML.setAttribute("type", "button");
 
         let numberCard = document.createElement("h3");
         numberCard.className = "numberCard";
-        numberCard.innerText = card
+        numberCard.innerText = card.number
 
         cardHTML.appendChild(numberCard);
         cardArea.appendChild(cardHTML);
         cardsOfPlayer.push({cards: card,color: "none"})
+
     })
-    console.log(cardsOfPlayer)
-})
 
-socket.on('chat message', function(msg) {
-    var item = document.createElement('li');
-    item.textContent = msg;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-});
-
+}
