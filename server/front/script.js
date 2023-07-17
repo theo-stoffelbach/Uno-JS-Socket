@@ -1,13 +1,27 @@
 var socket = io();
 var cardsOfPlayer = [];
 
-var messages = document.getElementById('messages');
-var form = document.getElementById('form');
-var input = document.getElementById('Start');
+// const messages = document.getElementById('messages'); // Je sais plus ce que c'est
+const form = document.getElementById('form');
+const input = document.getElementById('Start');
 
-var startMenu = document.getElementById('menu');
-var buttonCard = document.getElementsByClassName('card');
-var cardArea = document.getElementById('cards');
+const startMenu = document.getElementById('menu');
+// const drawButton = document.getElementById('#draw');
+var cardElements = document.getElementsByClassName('card');
+const cardArea = document.getElementById('cards');
+
+const turnState = document.getElementById('state');
+
+if (!cardElements.length <= 0) {
+    console.log(cardElements)
+    cardElements.forEach(el => {
+        console.log("mince")
+        el.addEventListener("click", l => {
+            console.log("c'est un : ", l)
+        })
+    });
+}
+
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -27,8 +41,35 @@ socket.on("startGame", () => {
 })
 
 socket.on("getDrewCard", (cards) => {
+    cards.forEach(card => {
+        console.log(card)
+    })
     regenerateCard(cards)
 })
+
+socket.on("updateCard", (playerData) => {
+    playerData.card.forEach(card => {
+        console.log(card)
+    })
+    regenerateCard(playerData.card)
+    turnState.innerText = playerData.status
+
+})
+
+socket.on("getStatue", (turn) => {
+    console.log("turn : ", turn)
+    turnState.innerText = turn
+})
+
+function Drew(number) {
+    console.log(number)
+    socket.emit('drewDeck', number);
+}
+
+function playCard(number,color) {
+    console.log(number)
+    socket.emit('playCard', number,color);
+}
 
 function regenerateCard(cards) {
 
@@ -38,6 +79,8 @@ function regenerateCard(cards) {
     }
 
     cards.forEach(card => {
+        console.log(card)
+
         cardHTML = document.createElement("button");
         cardHTML.className = "card";
         cardHTML.setAttribute("type", "button");
@@ -46,6 +89,12 @@ function regenerateCard(cards) {
         numberCard.className = "numberCard";
         numberCard.innerText = card.number
 
+        numberCard.className = "card.color";
+
+        numberCard.onclick = function() {
+            playCard(this.innerText,card.color);
+        };
+
         cardHTML.appendChild(numberCard);
         cardArea.appendChild(cardHTML);
         cardsOfPlayer.push({cards: card,color: "none"})
@@ -53,3 +102,5 @@ function regenerateCard(cards) {
     })
 
 }
+
+
