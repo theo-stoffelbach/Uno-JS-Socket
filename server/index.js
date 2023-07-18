@@ -2,21 +2,21 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server, Socket} = require("socket.io");
+const { Server } = require("socket.io");
 const io = new Server(server);
-const getCards = require('./testcard.js');
+// const getCards = require('./testcard.js');
 // const StartGame = require('./game')
 
-var ioSocket = io.sockets
+let ioSocket = io.sockets
 const path = require('path')
 
-var cardsDeck = [];
-var cardsDiscard = [{
+let cardsDeck = [];
+let cardsDiscard = [{
     color: "green",
     number: 10
 }];
-var playerCardMap = new Map;
-var wayToTurn = [];
+let playerCardMap = new Map;
+// var wayToTurn = [];
 
 app.use(express.static(path.join(__dirname , '/front')))
 
@@ -24,14 +24,14 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/front/page.html');
 })
 
-let buttonState = "lobby";
-let i = 0;
+// let buttonState = "lobby";
+// let i = 0;
 
 io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('user disconnected');
-        console.log(playerCardMap)
+        // console.log(playerCardMap)
 
         if (String(playerCardMap.get(socket.id )) !== undefined) {
             return;
@@ -61,28 +61,16 @@ io.on('connection', (socket) => {
         console.log("Player map : ", playerCardMap[socket.id])
 
         if (playerCardMap[socket.id].turn) {
-            verifPlayCard(card,color,socket.id)
+            verifyPlayCard(card,color,socket.id)
         }else {
             console.log("Not your turn")
         }
     })
-
-    socket.on("playCard", (card,color) => {
-        console.log("bug 1")
-        console.log("Player map : ", playerCardMap[socket.id])
-
-        if (playerCardMap[socket.id].turn) {
-            verifPlayCard(card,color,socket.id)
-        }else {
-            console.log("Not your turn")
-        }
-    })
-
 });
 
-function cooldown(s) {
-    setTimeout(() => {},s*1000)
-}
+// function coldDown(s) {
+//     setTimeout(() => {},s*1000)
+// }
 
 function StartGame() {
     // console.log(ioSocket.sockets.size)
@@ -98,7 +86,7 @@ function StartGame() {
 
 function initGame(nbCards) {
     // colorsInGame = ["green","yellow","red","blue"]
-    colorsInGame = ["green"]
+    let colorsInGame = ["green"]
 
     colorsInGame.forEach(color => {
         for (let i = 0; i <= nbCards; i++) {
@@ -121,14 +109,14 @@ function initGame(nbCards) {
 }
 
 function drewCards(nbCardDrew,player) {
-    console.log(" --- Drew ---")
+    console.log(" --- Drew --- : ", player)
     for (let i = 1; i <= nbCardDrew; i++) {
-        let randomNumberCard = Math.round(Math.random() * cardsDeck.length - 1)
-        console.log("randomNumberCard : ", randomNumberCard, ", i : ",i, ", cardlength : ", cardsDeck.length)
+        let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
+        // console.log("randomNumberCard : ", randomNumberCard, ", i : ",i, ", cardLength : ", cardsDeck.length)
         playerCardMap[player].card.push(cardsDeck[randomNumberCard])
-        cardRemoved = cardsDeck.splice(randomNumberCard,1)
-        console.log("-- ")
-        console.log("Drew : ", cardRemoved)
+        let cardRemoved = cardsDeck.splice(randomNumberCard,1)
+        // console.log("-- ")
+        // console.log("Drew : ", cardRemoved)
     }
     const socketPlayer = io.sockets.sockets.get(player);
 
@@ -145,12 +133,10 @@ function drewCards(nbCardDrew,player) {
 }
 
 function turnSomeOne() {
-    console.log("Turn ! : ")
+    // console.log("Turn ! : ")
     let players = ioSocket.sockets
     let nbPlayer = Math.round(Math.random() * players.size)
     let i = 1
-
-    // console.log("players : ", players)
 
     console.log("players.size : ", players.size)
     console.log("turn : ",nbPlayer)
@@ -171,7 +157,7 @@ function turnSomeOne() {
     })
 }
 
-function verifPlayCard(card,color,player) {
+function verifyPlayCard(card,color,player) {
 
     console.log(cardsDiscard[cardsDiscard.length - 1].color)
     console.log(color)
@@ -180,20 +166,22 @@ function verifPlayCard(card,color,player) {
     console.log(typeof color)
 
     if (cardsDiscard[cardsDiscard.length - 1].color === color || cardsDiscard[cardsDiscard.length - 1].number === card.number ) {
-        cardsDiscard.push({
-            number: card.number,
-            color:color
-        })
 
         const socketPlayer = io.sockets.sockets.get(player);
         if (socketPlayer) {
+            cardsDiscard.push({
+                number: card.number,
+                color:color
+            })
+
             let cardDeckPlayer = playerCardMap[player].card;
             console.log(playerCardMap[player])
             cardDeckPlayer.forEach((cards,i) => {
                 console.log(i)
                 if (color === cards.color && cards.number === cards.number) {
                     playerCardMap[player].card.splice(i,1)
-                    console.log("CA MARCHE")
+                    playerCardMap[player].turn = false
+                    console.log("CA MARCHE");
                 }
             })
             console.log(playerCardMap[player])

@@ -41,15 +41,14 @@ socket.on("startGame", () => {
 })
 
 socket.on("getDrewCard", (cards) => {
-    cards.forEach(card => {
-        console.log(card)
-    })
+    console.log("! DREW !")
     regenerateCard(cards)
+    console.log("! END DREW !")
 })
 
 socket.on("updateCard", (playerData) => {
     playerData.card.forEach(card => {
-        console.log(card)
+        // console.log(card)
     })
     regenerateCard(playerData.card)
     turnState.innerText = playerData.status
