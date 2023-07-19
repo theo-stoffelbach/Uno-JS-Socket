@@ -134,9 +134,15 @@ function drewCards(nbCardDrew,player) {
 
 function turnSomeOne() {
     // console.log("Turn ! : ")
-    let players = ioSocket.sockets
-    let nbPlayer = Math.round(Math.random() * players.size)
-    let i = 1
+    let players = ioSocket.sockets;
+    let nbPlayer;
+
+    if (players.size === 1) nbPlayer = 1
+    else {
+        nbPlayer = (Math.round(Math.random() * players.size)) + 1;
+    }
+
+    let i = 1;
 
     console.log("players.size : ", players.size)
     console.log("turn : ",nbPlayer)
@@ -144,7 +150,7 @@ function turnSomeOne() {
     ioSocket.sockets.forEach(socket => {
         const socketPlayer = io.sockets.sockets.get(socket.id);
         if (i === nbPlayer)  {
-            playerCardMap[socket.id].turn = true
+            playerCardMap[socket.id].turn = true;
         }
 
         if (socketPlayer) {
