@@ -132,6 +132,11 @@ function drewCards(nbCardDrew,player) {
 
 }
 
+function updateCard() {
+    console.log("card update")
+    ioSocket.emit("updateCard", cardsDiscard[cardsDiscard.length - 1])
+}
+
 function turnSomeOne() {
     // console.log("Turn ! : ")
     let players = ioSocket.sockets;
@@ -139,13 +144,13 @@ function turnSomeOne() {
 
     if (players.size === 1) nbPlayer = 1
     else {
-        nbPlayer = (Math.round(Math.random() * players.size)) + 1;
+        nbPlayer = (Math.round(Math.random() * (players.size - 1))) + 1;
     }
 
     let i = 1;
 
-    console.log("players.size : ", players.size)
-    console.log("turn : ",nbPlayer)
+    console.log("players.size : ", players.size);
+    console.log("turn : ",nbPlayer);
 
     ioSocket.sockets.forEach(socket => {
         const socketPlayer = io.sockets.sockets.get(socket.id);
@@ -158,8 +163,8 @@ function turnSomeOne() {
         } else {
             console.log('Socket non trouvé');
         }
-        console.log("i :",i, ",nbP : ", nbPlayer,",socket : ", socket.id)
-        i++
+        console.log("i :",i, ",nbP : ", nbPlayer,",socket : ", socket.id);
+        i++;
     })
 }
 
