@@ -11,6 +11,7 @@ var cardElements = document.getElementsByClassName('card');
 const cardArea = document.getElementById('cards');
 
 const turnState = document.getElementById('state');
+const lastCardPlayedElement = document.getElementById('lastPlayedCard');
 
 if (!cardElements.length <= 0) {
     console.log(cardElements)
@@ -37,7 +38,8 @@ socket.on('disconnect', () => {
 });
 
 socket.on("startGame", () => {
-    startMenu.remove()
+    console.log("?? ??")
+    startMenu.remove();
 })
 
 socket.on("getDrewCard", (cards) => {
@@ -46,12 +48,17 @@ socket.on("getDrewCard", (cards) => {
     console.log("! END DREW !")
 })
 
-socket.on("updateCard", (playerData) => {
-    playerData.card.forEach(card => {
-        // console.log(card)
-    })
-    regenerateCard(playerData.card)
-    turnState.innerText = playerData.status
+socket.on("updateCard", (playerData,lastCardPlayed) => {
+    console.log()
+    console.log('data :', playerData )
+    console.log('lastCardPlayed :')
+    console.log(lastCardPlayed)
+    console.log()
+    regenerateCard(playerData.card);
+    turnState.innerText = playerData.turn;
+
+    lastCardPlayedElement.innerText = lastCardPlayed.number
+
 
 })
 
