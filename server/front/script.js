@@ -23,7 +23,6 @@ if (!cardElements.length <= 0) {
     });
 }
 
-
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value) {

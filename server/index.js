@@ -77,7 +77,9 @@ io.on('connection', (socket) => {
 // }
 
 function StartGame() {
+    console.log(ioSocket.sockets);
     initGame(9)
+    console.log(ioSocket.sockets);
     console.log("------")
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
@@ -131,7 +133,8 @@ function drewCards(nbCardDrew,player) {
 }
 
 function turnSomeOne() {
-    let players = ioSocket.sockets;
+    var players = new Map(ioSocket.sockets)
+
     let nbPlayer;
     if (players.size === 1) nbPlayer = 1
     else {
