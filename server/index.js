@@ -77,10 +77,7 @@ io.on('connection', (socket) => {
 // }
 
 function StartGame() {
-    console.log(ioSocket.sockets);
     initGame(9)
-    console.log(ioSocket.sockets);
-    console.log("------")
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
     })
@@ -134,12 +131,17 @@ function drewCards(nbCardDrew,player) {
 
 function turnSomeOne() {
     var players = new Map(ioSocket.sockets)
+    playersNotTurn = []
 
+    console.log("-------")
+    console.log(players.size)
     let nbPlayer;
     if (players.size === 1) nbPlayer = 1
     else {
+        console.log("This loop")
         nbPlayer = (Math.round(Math.random() * (players.size - 1))) + 1;
     }
+
     let i = 1;
 
     ioSocket.sockets.forEach(socket => {
@@ -147,7 +149,6 @@ function turnSomeOne() {
         if (i === nbPlayer)  {
             playerCardMap[socket.id].turn = true;
             players.delete(socket.id)
-
         }
 
         if (socketPlayer) {
@@ -155,8 +156,18 @@ function turnSomeOne() {
         } else {
             console.log('Socket non trouvé');
         }
+
+        if (players.size !== 0) {
+            players.forEach(player => {
+                wayTurn.push(player.id)
+                players.delete(player.id)
+            })
+        }
+        
         i++;
     })
+
+
 }
 
 function verifyPlayCard(card,color,player) {
