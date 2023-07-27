@@ -160,10 +160,11 @@ function turnSomeOne() {
         if (players.size !== 0) {
             players.forEach(player => {
                 wayTurn.push(player.id)
+                console.log("turn ")
                 players.delete(player.id)
             })
         }
-        
+        console.log("WayTurn : ", wayTurn)
         i++;
     })
 
