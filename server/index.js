@@ -131,7 +131,7 @@ function drewCards(nbCardDrew,player) {
 
 function turnSomeOne() {
     var players = new Map(ioSocket.sockets)
-    playersNotTurn = []
+    let playersNotTurn = []
 
     console.log("-------")
     console.log(players.size)
@@ -148,7 +148,13 @@ function turnSomeOne() {
         const socketPlayer = io.sockets.sockets.get(socket.id);
         if (i === nbPlayer)  {
             playerCardMap[socket.id].turn = true;
+            wayTurn.push(socket.id)
             players.delete(socket.id)
+        }else {
+            playersNotTurn.push(socket.id)
+            console.log("turn ")
+            players.delete(socket.id)
+
         }
 
         if (socketPlayer) {
@@ -157,18 +163,13 @@ function turnSomeOne() {
             console.log('Socket non trouvé');
         }
 
-        if (players.size !== 0) {
-            players.forEach(player => {
-                wayTurn.push(player.id)
-                console.log("turn ")
-                players.delete(player.id)
-            })
-        }
-        console.log("WayTurn : ", wayTurn)
+        console.log("WayTurn : ", wayTurn);
         i++;
     })
-
-
+    shuffle()
+    console.log("turn : ", wayTurn[0], ":",wayTurn.length," | not turn : ", playersNotTurn[0],":",playersNotTurn.length)
+    wayTurn.push(...playersNotTurn)
+    console.log(wayTurn)
 }
 
 function verifyPlayCard(card,color,player) {
