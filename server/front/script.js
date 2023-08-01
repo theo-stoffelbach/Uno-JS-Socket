@@ -57,8 +57,6 @@ socket.on("updateCard", (playerData,lastCardPlayed) => {
     turnState.innerText = playerData.turn;
 
     lastCardPlayedElement.innerText = lastCardPlayed.number
-
-
 })
 
 socket.on("getStatue", (turn) => {
@@ -67,7 +65,7 @@ socket.on("getStatue", (turn) => {
 })
 
 function Drew(number) {
-    console.log(number)
+    console.log(number);
     socket.emit('drewDeck', number);
 }
 

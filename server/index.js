@@ -56,8 +56,9 @@ io.on('connection', (socket) => {
     socket.on("drewDeck", (number) => {
         console.log("Number : ", number)
         drewCards(number,socket.id)
-
+        playerCardMap.get(socket.id).alreadyDraw = false
         updateCard()
+        console.log("ADraw : ", cardsOfPlayer.get(socket.id).alreadyDraw)
     })
 
     socket.on("playCard", (card,color) => {
@@ -100,11 +101,13 @@ function initGame(nbCards) {
     ioSocket.sockets.forEach(socket => {
         playerCardMap[socket.id] = {
             card : [],
-            turn : false
+            turn : false,
+            alreadyDraw: false
         }
     })
 
     turnSomeOne()
+
 
     ioSocket.emit("startGame")
 }
@@ -129,47 +132,33 @@ function drewCards(nbCardDrew,player) {
 
 }
 
-function turnSomeOne() {
-    var players = new Map(ioSocket.sockets)
-    let playersNotTurn = []
+function CreateWayTurn() {
+    //deplace function
+}
 
-    console.log("-------")
-    console.log(players.size)
-    let nbPlayer;
-    if (players.size === 1) nbPlayer = 1
-    else {
-        console.log("This loop")
-        nbPlayer = (Math.round(Math.random() * (players.size - 1))) + 1;
+function turnSomeOne() {
+    let playersList = []
+
+    ioSocket.sockets.forEach(socketPlayer => {
+      playersList.push(socketPlayer.id);
+    })
+    playersList = shuffle(playersList);
+
+    playerCardMap[playersList[0]].turn = true ;
+
+    updateCard()
+}
+
+function shuffle(el) {
+    let shuffledElement = [];
+
+    for (let i = 0;0 !== el.length; i++) {
+        let randomEl = Math.floor(Math.random() * el.length)
+        shuffledElement.push(el[randomEl]);
+        el.splice(randomEl,1);
     }
 
-    let i = 1;
-
-    ioSocket.sockets.forEach(socket => {
-        const socketPlayer = io.sockets.sockets.get(socket.id);
-        if (i === nbPlayer)  {
-            playerCardMap[socket.id].turn = true;
-            wayTurn.push(socket.id)
-            players.delete(socket.id)
-        }else {
-            playersNotTurn.push(socket.id)
-            console.log("turn ")
-            players.delete(socket.id)
-
-        }
-
-        if (socketPlayer) {
-            socketPlayer.emit('getStatue', playerCardMap[socket.id].turn);
-        } else {
-            console.log('Socket non trouvé');
-        }
-
-        console.log("WayTurn : ", wayTurn);
-        i++;
-    })
-    shuffle()
-    console.log("turn : ", wayTurn[0], ":",wayTurn.length," | not turn : ", playersNotTurn[0],":",playersNotTurn.length)
-    wayTurn.push(...playersNotTurn)
-    console.log(wayTurn)
+    return shuffledElement
 }
 
 function verifyPlayCard(card,color,player) {
