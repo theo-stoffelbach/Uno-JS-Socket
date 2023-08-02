@@ -18,6 +18,7 @@ let cardsDiscard = [{
 }];
 let playerCardMap = new Map;
 // var wayToTurn = [];
+let countTurn = 0;
 
 app.use(express.static(path.join(__dirname , '/front')))
 
@@ -82,8 +83,10 @@ function StartGame() {
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
     })
-    console.log("------")
-    console.log("Game Start")
+    // console.log("------")
+    console.log(" -- Game Start -- ")
+
+        nextTturn()
 }
 
 function initGame(nbCards) {
@@ -106,14 +109,19 @@ function initGame(nbCards) {
         }
     })
 
-    turnSomeOne()
+    wayTurn = CreateWayTurn()
+
+
+    console.log("- - -")
+    turnSomeOne();
+    console.log("-- - -")
 
 
     ioSocket.emit("startGame")
 }
 
 function drewCards(nbCardDrew,player) {
-    console.log(" --- Drew --- : ", player)
+    // console.log(" --- Drew --- : ", player)
     for (let i = 1; i <= nbCardDrew; i++) {
         let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
         playerCardMap[player].card.push(cardsDeck[randomNumberCard])
@@ -128,25 +136,35 @@ function drewCards(nbCardDrew,player) {
     } else {
         console.log('Socket non trouvé');
     }
-
-
 }
 
 function CreateWayTurn() {
-    //deplace function
-}
-
-function turnSomeOne() {
     let playersList = []
 
     ioSocket.sockets.forEach(socketPlayer => {
-      playersList.push(socketPlayer.id);
+        playersList.push(socketPlayer.id);
     })
     playersList = shuffle(playersList);
 
-    playerCardMap[playersList[0]].turn = true ;
+    return playersList;
+}
+
+function turnSomeOne() {
+
+    let turnOfPlayer = wayTurn[countTurn % (wayTurn.length - 1)]
+
+    playerCardMap[turnOfPlayer].turn = true;
 
     updateCard()
+}
+
+function nextTturn() {
+    console.log(playerCardMap)
+    console.log(" --- ")
+    playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].turn = false
+    countTurn++
+    playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].turn = true
+    console.log(playerCardMap)
 }
 
 function shuffle(el) {
@@ -188,13 +206,14 @@ function verifyPlayCard(card,color,player) {
 }
 
 function updateCard() {
-    console.log("Update Deck")
+    // console.log("Update Deck")
     ioSocket.sockets.forEach(socket => {
         const playerSocket = io.sockets.sockets.get(socket.id)
-        console.log(cardsDiscard[cardsDiscard.length - 1])
+        // console.log(cardsDiscard[cardsDiscard.length - 1])
         playerSocket.emit("updateCard", playerCardMap[socket.id],cardsDiscard[cardsDiscard.length - 1])
     })
 }
+
 
 server.listen(3000, () => {
     console.log('listening on *:3000');
