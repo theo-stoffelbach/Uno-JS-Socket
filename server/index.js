@@ -56,10 +56,13 @@ io.on('connection', (socket) => {
 
     socket.on("drewDeck", (number) => {
         console.log("Number : ", number)
-        drewCards(number,socket.id)
-        playerCardMap.get(socket.id).alreadyDraw = false
+        if (!playerCardMap[socket.id].alreadyDraw && playerCardMap[socket.id].turn ) {
+            drewCards(number,socket.id)
+            playerCardMap[socket.id].alreadyDraw = true
+        }
+        testIfPlayerCanPlay()
         updateCard()
-        console.log("ADraw : ", cardsOfPlayer.get(socket.id).alreadyDraw)
+        console.log("ADraw : ", playerCardMap[socket.id].alreadyDraw)
     })
 
     socket.on("playCard", (card,color) => {
@@ -127,6 +130,7 @@ function drewCards(nbCardDrew,player) {
         playerCardMap[player].card.push(cardsDeck[randomNumberCard])
         cardsDeck.splice(randomNumberCard,1)
     }
+
     const socketPlayer = io.sockets.sockets.get(player);
 
     if (socketPlayer) {
@@ -202,18 +206,18 @@ function verifyPlayCard(card,color,player) {
     }else {
         console.log("YEAH")
     }
-
 }
 
 function updateCard() {
-    // console.log("Update Deck")
     ioSocket.sockets.forEach(socket => {
         const playerSocket = io.sockets.sockets.get(socket.id)
-        // console.log(cardsDiscard[cardsDiscard.length - 1])
         playerSocket.emit("updateCard", playerCardMap[socket.id],cardsDiscard[cardsDiscard.length - 1])
     })
 }
 
+function testIfPlayerCanPlay() {
+
+}
 
 server.listen(3000, () => {
     console.log('listening on *:3000');
