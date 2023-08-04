@@ -13,7 +13,7 @@ const path = require('path')
 let wayTurn = []
 let cardsDeck = [];
 let cardsDiscard = [{
-    color: "green",
+    color: "blue",
     number: 10
 }];
 let playerCardMap = new Map;
@@ -57,12 +57,15 @@ io.on('connection', (socket) => {
     socket.on("drewDeck", (number) => {
         console.log("Number : ", number)
         if (!playerCardMap[socket.id].alreadyDraw && playerCardMap[socket.id].turn ) {
-            drewCards(number,socket.id)
+            drewCards(number,socket.id);
             playerCardMap[socket.id].alreadyDraw = true
+
+            if (!testIfPlayerCanPlay(socket)) {
+                nextTurn();
+            }
         }
-        testIfPlayerCanPlay()
-        updateCard()
-        console.log("ADraw : ", playerCardMap[socket.id].alreadyDraw)
+
+        updateCard();
     })
 
     socket.on("playCard", (card,color) => {
@@ -86,10 +89,7 @@ function StartGame() {
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
     })
-    // console.log("------")
     console.log(" -- Game Start -- ")
-
-        nextTturn()
 }
 
 function initGame(nbCards) {
@@ -162,13 +162,13 @@ function turnSomeOne() {
     updateCard()
 }
 
-function nextTturn() {
-    console.log(playerCardMap)
-    console.log(" --- ")
+function nextTurn() {
     playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].turn = false
     countTurn++
     playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].turn = true
-    console.log(playerCardMap)
+    playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].alreadyDraw = false
+    console.log(playerCardMap[wayTurn[countTurn % ( wayTurn.length)]])
+    console.log(" --- ")
 }
 
 function shuffle(el) {
@@ -215,8 +215,14 @@ function updateCard() {
     })
 }
 
-function testIfPlayerCanPlay() {
-
+function testIfPlayerCanPlay(socket) {
+    let canPlay = false
+    playerCardMap[socket.id].card.forEach(card => {
+        if (card.color === cardsDiscard[cardsDiscard.length - 1].color || card.number === cardsDiscard[cardsDiscard.length - 1].number) {
+            canPlay = true
+        }
+    })
+    return canPlay
 }
 
 server.listen(3000, () => {
