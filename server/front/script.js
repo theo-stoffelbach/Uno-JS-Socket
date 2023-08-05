@@ -71,14 +71,17 @@ function Drew(number) {
 
 function playCard(number,color) {
     console.log(number)
-    socket.emit('playCard', number,color);
+    socket.emit('playCard', {
+        number : number,
+        color: color
+    });
 }
 
 function regenerateCard(cards) {
 
     while (cardArea.firstChild) {
         cardArea.removeChild(cardArea.firstChild);
-        console.log("bug")
+        console.log("bug");
     }
 
     cards.forEach(card => {
@@ -100,7 +103,7 @@ function regenerateCard(cards) {
 
         cardHTML.appendChild(numberCard);
         cardArea.appendChild(cardHTML);
-        cardsOfPlayer.push({cards: card,color: "none"})
+        cardsOfPlayer.push({number: card,color: "none"})
 
     })
 

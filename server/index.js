@@ -10,14 +10,10 @@ const io = new Server(server);
 let ioSocket = io.sockets
 const path = require('path')
 
-let wayTurn = []
+let wayTurn = [];
 let cardsDeck = [];
-let cardsDiscard = [{
-    color: "blue",
-    number: 10
-}];
+let cardsDiscard = [];
 let playerCardMap = new Map;
-// var wayToTurn = [];
 let countTurn = 0;
 
 app.use(express.static(path.join(__dirname , '/front')))
@@ -25,9 +21,6 @@ app.use(express.static(path.join(__dirname , '/front')))
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/front/page.html');
 })
-
-// let buttonState = "lobby";
-// let i = 0;
 
 io.on('connection', (socket) => {
 
@@ -56,6 +49,7 @@ io.on('connection', (socket) => {
 
     socket.on("drewDeck", (number) => {
         console.log("Number : ", number)
+        console.log(socket.id)
         if (!playerCardMap[socket.id].alreadyDraw && playerCardMap[socket.id].turn ) {
             drewCards(number,socket.id);
             playerCardMap[socket.id].alreadyDraw = true
@@ -68,21 +62,15 @@ io.on('connection', (socket) => {
         updateCard();
     })
 
-    socket.on("playCard", (card,color) => {
+    socket.on("playCard", card => {
         console.log("bug 1")
-        console.log("Player map : ", playerCardMap[socket.id])
-
-        if (playerCardMap.get(socket.id).turn) {
-            verifyPlayCard(card,color,socket.id)
+        if (playerCardMap[socket.id].turn) {
+            verifyPlayCard(card,socket.id)
         }else {
             console.log("Not your turn")
         }
     })
 });
-
-// function coldDown(s) {
-//     setTimeout(() => {},s*1000)
-// }
 
 function StartGame() {
     initGame(9)
@@ -102,8 +90,6 @@ function initGame(nbCards) {
         }
     })
 
-    //player :
-
     ioSocket.sockets.forEach(socket => {
         playerCardMap[socket.id] = {
             card : [],
@@ -113,12 +99,9 @@ function initGame(nbCards) {
     })
 
     wayTurn = CreateWayTurn()
+    pickRandomStartDiscard();
 
-
-    console.log("- - -")
     turnSomeOne();
-    console.log("-- - -")
-
 
     ioSocket.emit("startGame")
 }
@@ -155,7 +138,7 @@ function CreateWayTurn() {
 
 function turnSomeOne() {
 
-    let turnOfPlayer = wayTurn[countTurn % (wayTurn.length - 1)]
+    let turnOfPlayer = wayTurn[countTurn % (wayTurn.length - 1)];
 
     playerCardMap[turnOfPlayer].turn = true;
 
@@ -183,22 +166,13 @@ function shuffle(el) {
     return shuffledElement
 }
 
-function verifyPlayCard(card,color,player) {
-    if (cardsDiscard[cardsDiscard.length - 1].color === color || cardsDiscard[cardsDiscard.length - 1].number === card ) {
+function verifyPlayCard(card,player) {
+    console.log("color : ",cardsDiscard[cardsDiscard.length - 1].color, " : ", card.color )
+    if (cardsDiscard[cardsDiscard.length - 1].color === card.color || cardsDiscard[cardsDiscard.length - 1].number === card ) {
+        console.log("mince ca marche !!")
         const socketPlayer = io.sockets.sockets.get(player);
         if (socketPlayer) {
-            cardsDiscard.push({
-                number: card,
-                color:color
-            })
-
-            let cardDeckPlayer = playerCardMap[player].card;
-            cardDeckPlayer.forEach((cards,i) => {
-                if (color === cards.color && cards.number === cards.number) {
-                    playerCardMap[player].card.splice(i,1);
-                    playerCardMap[player].turn = false;
-                }
-            })
+            playCard(player,card)
             updateCard()
         } else {
             console.log('Socket non trouvé');
@@ -215,6 +189,18 @@ function updateCard() {
     })
 }
 
+function playCard(playerId,cardPlayer) {
+    playerCardMap[playerId].card.forEach((card,i) => {
+        console.log(cardPlayer)
+        console.log("card : ", card.number,":",card.color,"| ",cardPlayer.number, ":",cardPlayer.color)
+        if (card.number === parseInt(cardPlayer.number) && card.color === cardPlayer.color) {
+            playerCardMap[playerId].card.splice(i,1);
+            nextTurn();
+            updateCard();
+        }
+    })
+}
+
 function testIfPlayerCanPlay(socket) {
     let canPlay = false
     playerCardMap[socket.id].card.forEach(card => {
@@ -223,6 +209,12 @@ function testIfPlayerCanPlay(socket) {
         }
     })
     return canPlay
+}
+
+function pickRandomStartDiscard() {
+    let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
+    cardsDiscard.push(cardsDeck[randomNumberCard])
+    cardsDeck.splice(randomNumberCard,1)
 }
 
 server.listen(3000, () => {
