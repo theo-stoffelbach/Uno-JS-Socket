@@ -63,7 +63,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on("playCard", card => {
-        console.log("bug 1")
         if (playerCardMap[socket.id].turn) {
             verifyPlayCard(card,socket.id)
         }else {
@@ -107,7 +106,10 @@ function initGame(nbCards) {
 }
 
 function drewCards(nbCardDrew,player) {
-    // console.log(" --- Drew --- : ", player)
+    // if (verifDrawCards(nbCardDrew))
+
+    if (countTurn > 3) shuffleDiscardGame(999);
+
     for (let i = 1; i <= nbCardDrew; i++) {
         let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
         playerCardMap[player].card.push(cardsDeck[randomNumberCard])
@@ -123,6 +125,17 @@ function drewCards(nbCardDrew,player) {
     } else {
         console.log('Socket non trouvé');
     }
+}
+
+function verifDrawCards(number) {
+    return number <= cardsDeck.length;
+}
+
+function shuffleDiscardGame() {
+    console.log("test")
+    let test = cardsDiscard.splice(0,cardsDiscard.length-2)
+    console.log(cardsDiscard)
+    console.log(test)
 }
 
 function CreateWayTurn() {
@@ -150,8 +163,6 @@ function nextTurn() {
     countTurn++
     playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].turn = true
     playerCardMap[wayTurn[countTurn % ( wayTurn.length)]].alreadyDraw = false
-    console.log(playerCardMap[wayTurn[countTurn % ( wayTurn.length)]])
-    console.log(" --- ")
 }
 
 function shuffle(el) {
@@ -167,13 +178,11 @@ function shuffle(el) {
 }
 
 function verifyPlayCard(card,player) {
-    console.log("color : ",cardsDiscard[cardsDiscard.length - 1].color, " : ", card.color )
     if (cardsDiscard[cardsDiscard.length - 1].color === card.color || cardsDiscard[cardsDiscard.length - 1].number === card ) {
-        console.log("mince ca marche !!")
         const socketPlayer = io.sockets.sockets.get(player);
         if (socketPlayer) {
-            playCard(player,card)
-            updateCard()
+            playCard(player,card);
+            updateCard();
         } else {
             console.log('Socket non trouvé');
         }
@@ -184,21 +193,24 @@ function verifyPlayCard(card,player) {
 
 function updateCard() {
     ioSocket.sockets.forEach(socket => {
-        const playerSocket = io.sockets.sockets.get(socket.id)
-        playerSocket.emit("updateCard", playerCardMap[socket.id],cardsDiscard[cardsDiscard.length - 1])
+        cardDiscard = cardsDiscard[cardsDiscard.length - 1]
+        if (Array.isArray(cardsDiscard[cardsDiscard.length - 1])) cardDiscard = cardsDiscard[cardsDiscard.length - 1][0]
+        console.log("ty Upd CD : ", typeof cardsDiscard[cardsDiscard.length - 1], " v : ",cardsDiscard[cardsDiscard.length - 1], " test : ")
+        const playerSocket = io.sockets.sockets.get(socket.id);
+        playerSocket.emit("updateCard", playerCardMap[socket.id],cardDiscard);
     })
 }
 
 function playCard(playerId,cardPlayer) {
     playerCardMap[playerId].card.forEach((card,i) => {
-        console.log(cardPlayer)
-        console.log("card : ", card.number,":",card.color,"| ",cardPlayer.number, ":",cardPlayer.color)
         if (card.number === parseInt(cardPlayer.number) && card.color === cardPlayer.color) {
-            playerCardMap[playerId].card.splice(i,1);
+            let cardPlayed = playerCardMap[playerId].card.splice(i,1);
+            cardsDiscard.push(cardPlayed)
             nextTurn();
             updateCard();
         }
     })
+    console.log("cardDis : ", cardsDiscard)
 }
 
 function testIfPlayerCanPlay(socket) {
