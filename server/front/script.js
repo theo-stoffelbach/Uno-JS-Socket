@@ -49,7 +49,7 @@ socket.on("getDrewCard", (cards) => {
 
 socket.on("updateCard", (playerData,lastCardPlayed) => {
     console.log()
-    console.log('data :', playerData )
+    console .log('data :', playerData )
     console.log('lastCardPlayed :')
     console.log(lastCardPlayed)
     console.log()

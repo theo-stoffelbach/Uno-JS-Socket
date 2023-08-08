@@ -48,8 +48,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on("drewDeck", (number) => {
-        console.log("Number : ", number)
-        console.log(socket.id)
+        console.log("Number : ", number);
+        console.log(socket.id);
         if (!playerCardMap[socket.id].alreadyDraw && playerCardMap[socket.id].turn ) {
             drewCards(number,socket.id);
             playerCardMap[socket.id].alreadyDraw = true
@@ -108,6 +108,7 @@ function initGame(nbCards) {
 function drewCards(nbCardDrew,player) {
     // if (verifDrawCards(nbCardDrew))
 
+    console.log("count : ", countTurn);
     if (countTurn > 3) shuffleDiscardGame(999);
 
     for (let i = 1; i <= nbCardDrew; i++) {
@@ -133,9 +134,10 @@ function verifDrawCards(number) {
 
 function shuffleDiscardGame() {
     console.log("test")
-    let test = cardsDiscard.splice(0,cardsDiscard.length-2)
-    console.log(cardsDiscard)
-    console.log(test)
+    let test = cardsDiscard.splice(0,cardsDiscard.length-1)
+    test.forEach(card => {
+        cardsDeck.push(card)
+    })
 }
 
 function CreateWayTurn() {
@@ -178,7 +180,9 @@ function shuffle(el) {
 }
 
 function verifyPlayCard(card,player) {
-    if (cardsDiscard[cardsDiscard.length - 1].color === card.color || cardsDiscard[cardsDiscard.length - 1].number === card ) {
+    let lastGraveCard = cardsDiscard[cardsDiscard.length - 1]
+    if (Array.isArray(lastGraveCard)) lastGraveCard = lastGraveCard[0]
+    if (lastGraveCard.color === card.color || lastGraveCard.number === card.number ) {
         const socketPlayer = io.sockets.sockets.get(player);
         if (socketPlayer) {
             playCard(player,card);
@@ -187,7 +191,7 @@ function verifyPlayCard(card,player) {
             console.log('Socket non trouvé');
         }
     }else {
-        console.log("YEAH")
+        console.log("Don't enable y : ",card.color,"|",lastGraveCard.color," , y :", card.number,"|", lastGraveCard.number)
     }
 }
 
