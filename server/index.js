@@ -50,6 +50,11 @@ io.on('connection', (socket) => {
     socket.on("drewDeck", (number) => {
         console.log("Number : ", number);
         console.log(socket.id);
+        if (cardsDeck.length === 0 && cardsDiscard.length - 1 === 0) return
+        console.log(cardsDeck.length, " : ", cardsDiscard.length)
+        console.log(cardsDeck)
+        console.log(" --- ")
+        console.log(cardsDiscard)
         if (!playerCardMap[socket.id].alreadyDraw && playerCardMap[socket.id].turn ) {
             drewCards(number,socket.id);
             playerCardMap[socket.id].alreadyDraw = true
@@ -72,11 +77,11 @@ io.on('connection', (socket) => {
 });
 
 function StartGame() {
-    initGame(9)
+    initGame(7);
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
     })
-    console.log(" -- Game Start -- ")
+    console.log(" -- Game Start -- ");
 }
 
 function initGame(nbCards) {
@@ -106,10 +111,9 @@ function initGame(nbCards) {
 }
 
 function drewCards(nbCardDrew,player) {
-    // if (verifDrawCards(nbCardDrew))
-
-    console.log("count : ", countTurn);
-    if (countTurn > 3) shuffleDiscardGame(999);
+    if (!verifDrawCards(nbCardDrew)) {
+        if (!shuffleDiscardGame()) return //this function do a shuffle in discard Deck if it possible
+    }
 
     for (let i = 1; i <= nbCardDrew; i++) {
         let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
@@ -134,10 +138,16 @@ function verifDrawCards(number) {
 
 function shuffleDiscardGame() {
     console.log("test")
+    if (cardsDiscard.length === 0) return false
     let test = cardsDiscard.splice(0,cardsDiscard.length-1)
     test.forEach(card => {
-        cardsDeck.push(card)
+        if (Array.isArray(card)) card = card[0]
+        cardsDeck.push(card);
     })
+    console.log("??");
+
+    console.log("ShuffleCard");
+    return true
 }
 
 function CreateWayTurn() {
@@ -197,9 +207,9 @@ function verifyPlayCard(card,player) {
 
 function updateCard() {
     ioSocket.sockets.forEach(socket => {
+        console.log("ty Upd CD : ", typeof cardsDiscard[cardsDiscard.length - 1], " v : ",cardsDiscard[cardsDiscard.length - 1], " test : ")
         cardDiscard = cardsDiscard[cardsDiscard.length - 1]
         if (Array.isArray(cardsDiscard[cardsDiscard.length - 1])) cardDiscard = cardsDiscard[cardsDiscard.length - 1][0]
-        console.log("ty Upd CD : ", typeof cardsDiscard[cardsDiscard.length - 1], " v : ",cardsDiscard[cardsDiscard.length - 1], " test : ")
         const playerSocket = io.sockets.sockets.get(socket.id);
         playerSocket.emit("updateCard", playerCardMap[socket.id],cardDiscard);
     })
@@ -214,7 +224,6 @@ function playCard(playerId,cardPlayer) {
             updateCard();
         }
     })
-    console.log("cardDis : ", cardsDiscard)
 }
 
 function testIfPlayerCanPlay(socket) {
