@@ -48,11 +48,6 @@ socket.on("getDrewCard", (cards) => {
 })
 
 socket.on("updateCard", (playerData,lastCardPlayed) => {
-    console.log()
-    console .log('data :', playerData )
-    console.log('lastCardPlayed :')
-    console.log(lastCardPlayed)
-    console.log()
     regenerateCard(playerData.card);
     turnState.innerText = playerData.turn;
 
@@ -89,6 +84,7 @@ function regenerateCard(cards) {
 
         cardHTML = document.createElement("button");
         cardHTML.className = "card";
+        cardHTML.style.backgroundColor = card.color;
         cardHTML.setAttribute("type", "button");
 
         let numberCard = document.createElement("h3");
@@ -96,6 +92,8 @@ function regenerateCard(cards) {
         numberCard.innerText = card.number
 
         numberCard.className = "card.color";
+
+
 
         numberCard.onclick = function() {
             playCard(this.innerText,card.color);

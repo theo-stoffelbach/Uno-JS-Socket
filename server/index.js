@@ -10,6 +10,8 @@ const io = new Server(server);
 let ioSocket = io.sockets
 const path = require('path')
 
+const colorsInGame = ["green","yellow","red","blue"]
+
 let wayTurn = [];
 let cardsDeck = [];
 let cardsDiscard = [];
@@ -73,11 +75,13 @@ io.on('connection', (socket) => {
         }else {
             console.log("Not your turn")
         }
+        verifWin(socket.id)
     })
+
 });
 
 function StartGame() {
-    initGame(7);
+    initGame(9);
     ioSocket.sockets.forEach(socket => {
         drewCards(2,socket.id)
     })
@@ -85,8 +89,6 @@ function StartGame() {
 }
 
 function initGame(nbCards) {
-    // colorsInGame = ["green","yellow","red","blue"]
-    let colorsInGame = ["green"]
 
     colorsInGame.forEach(color => {
         for (let i = 0; i <= nbCards; i++) {
@@ -240,6 +242,11 @@ function pickRandomStartDiscard() {
     let randomNumberCard = Math.round(Math.random() * (cardsDeck.length - 1))
     cardsDiscard.push(cardsDeck[randomNumberCard])
     cardsDeck.splice(randomNumberCard,1)
+}
+
+function verifWin(player) {
+    if (playerCardMap[player].card.length === 0) return true
+    else return false
 }
 
 server.listen(3000, () => {
