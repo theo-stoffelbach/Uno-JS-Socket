@@ -54,6 +54,12 @@ socket.on("updateCard", (playerData,lastCardPlayed) => {
     lastCardPlayedElement.innerText = lastCardPlayed.number
 })
 
+socket.on("EndGame", statusGame => {
+if (statusGame) {
+
+}
+})
+
 socket.on("getStatue", (turn) => {
     console.log("turn : ", turn)
     turnState.innerText = turn
@@ -105,6 +111,25 @@ function regenerateCard(cards) {
 
     })
 
+    function printMessageEndGame(status) {
+        let containerHTML = document.getElementById("container")
+        containerHTML.innerHTML = "";
+
+        let messageHTML = document.createElement("h1")
+        messageHTML.className = "messageEngGame";
+        messageHTML.innerHTML = status
+
+        containerHTML.appendChild(messageHTML)
+        // cardHTML = document.createElement("button");
+        // cardHTML.className = "card";
+        // cardHTML.style.backgroundColor = card.color;
+        // cardHTML.setAttribute("type", "button");
+
+
+
+    }
+
 }
+
 
 

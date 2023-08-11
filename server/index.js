@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
+const { Server, Socket} = require("socket.io");
 const io = new Server(server);
 // const getCards = require('./testcard.js');
 // const StartGame = require('./game')
@@ -10,7 +10,8 @@ const io = new Server(server);
 let ioSocket = io.sockets
 const path = require('path')
 
-const colorsInGame = ["green","yellow","red","blue"]
+// const colorsInGame = ["green","yellow","red","blue"]
+const colorsInGame = ["green"]
 
 let wayTurn = [];
 let cardsDeck = [];
@@ -71,11 +72,11 @@ io.on('connection', (socket) => {
 
     socket.on("playCard", card => {
         if (playerCardMap[socket.id].turn) {
-            verifyPlayCard(card,socket.id)
+            verifyPlayCard(card,socket.id);
         }else {
             console.log("Not your turn")
         }
-        verifWin(socket.id)
+
     })
 
 });
@@ -194,10 +195,11 @@ function shuffle(el) {
 function verifyPlayCard(card,player) {
     let lastGraveCard = cardsDiscard[cardsDiscard.length - 1]
     if (Array.isArray(lastGraveCard)) lastGraveCard = lastGraveCard[0]
-    if (lastGraveCard.color === card.color || lastGraveCard.number === card.number ) {
+    if (lastGraveCard.color === card.color || lastGraveCard.number.toString() === card.number.toString() ) {
         const socketPlayer = io.sockets.sockets.get(player);
         if (socketPlayer) {
             playCard(player,card);
+            if (verifWin(player)) win();
             updateCard();
         } else {
             console.log('Socket non trouvé');
@@ -205,6 +207,7 @@ function verifyPlayCard(card,player) {
     }else {
         console.log("Don't enable y : ",card.color,"|",lastGraveCard.color," , y :", card.number,"|", lastGraveCard.number)
     }
+
 }
 
 function updateCard() {
@@ -245,8 +248,19 @@ function pickRandomStartDiscard() {
 }
 
 function verifWin(player) {
-    if (playerCardMap[player].card.length === 0) return true
-    else return false
+    console.log()
+    console.log(playerCardMap[player].card.length)
+    console.log(typeof  playerCardMap[player].card.length ," : ", typeof 0)
+    console.log( playerCardMap[player].card.length === 0)
+    return playerCardMap[player].card.length === 0;
+}
+
+function win() {
+    console.log("win")
+    playerCardMap.forEach(socket => {
+        console.log("socket : ", socket.id)
+        socket.get(socket.id).emit("EndGame",verifWin(socket.id))
+    })
 }
 
 server.listen(3000, () => {
