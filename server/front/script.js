@@ -54,10 +54,9 @@ socket.on("updateCard", (playerData,lastCardPlayed) => {
     lastCardPlayedElement.innerText = lastCardPlayed.number
 })
 
-socket.on("EndGame", statusGame => {
-if (statusGame) {
-
-}
+socket.on("endGame", statusGame => {
+    console.log("You : ", statusGame)
+    printMessageEndGame(statusGame)
 })
 
 socket.on("getStatue", (turn) => {
@@ -111,25 +110,29 @@ function regenerateCard(cards) {
 
     })
 
-    function printMessageEndGame(status) {
-        let containerHTML = document.getElementById("container")
-        containerHTML.innerHTML = "";
-
-        let messageHTML = document.createElement("h1")
-        messageHTML.className = "messageEngGame";
-        messageHTML.innerHTML = status
-
-        containerHTML.appendChild(messageHTML)
-        // cardHTML = document.createElement("button");
-        // cardHTML.className = "card";
-        // cardHTML.style.backgroundColor = card.color;
-        // cardHTML.setAttribute("type", "button");
-
-
-
-    }
 
 }
 
 
 
+function printMessageEndGame(status) {
+    let containerHTML = document.getElementById("container")
+
+    while (containerHTML.firstChild) {
+        containerHTML.removeChild(containerHTML.firstChild);
+        console.log("remove all container");
+    }
+
+    containerHTML.innerHTML = "";
+
+    let messageHTML = document.createElement("h1")
+    messageHTML.className = "messageEngGame";
+    messageHTML.innerHTML = status?"victoire":"perdu"
+
+    containerHTML.appendChild(messageHTML)
+    // cardHTML = document.createElement("button");
+    // cardHTML.className = "card";
+    // cardHTML.style.backgroundColor = card.color;
+    // cardHTML.setAttribute("type", "button");
+
+}

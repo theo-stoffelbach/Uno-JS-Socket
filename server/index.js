@@ -207,7 +207,6 @@ function verifyPlayCard(card,player) {
     }else {
         console.log("Don't enable y : ",card.color,"|",lastGraveCard.color," , y :", card.number,"|", lastGraveCard.number)
     }
-
 }
 
 function updateCard() {
@@ -257,9 +256,9 @@ function verifWin(player) {
 
 function win() {
     console.log("win")
-    playerCardMap.forEach(socket => {
-        console.log("socket : ", socket.id)
-        socket.get(socket.id).emit("EndGame",verifWin(socket.id))
+    ioSocket.sockets.forEach(socket => {
+        console.log("socket : ", socket.id);
+        io.sockets.sockets.get(socket.id).emit("endGame",verifWin(socket.id))
     })
 }
 
